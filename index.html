@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Listings for Tiber Health & Ponce Health Sciences University</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #003333;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Job Listings for Tiber Health & Ponce Health Sciences University</h1>
+
+    <h2>Filter Jobs</h2>
+    <label for="company-filter">Company:</label>
+    <select id="company-filter" onchange="filterJobs()">
+        <option value="all">All</option>
+        <option value="Tiber Health">Tiber Health</option>
+        <option value="Ponce Health Sciences University">Ponce Health Sciences University</option>
+        <option value="Ponce Research Institute">Ponce Research Institute</option>
+    </select>
+
+    <label for="location-filter">Location:</label>
+    <select id="location-filter" onchange="filterJobs()">
+        <option value="all">All</option>
+    </select>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Company</th>
+                <th>Location</th>
+                <th>Summary</th>
+                <th>URL</th>
+            </tr>
+        </thead>
+        <tbody id="job-list">
+            <!-- Job rows will be inserted here by JavaScript -->
+        </tbody>
+    </table>
+
+    <script>
+        let jobData = [];
+
+        // Fetch and store the JSON data
+        fetch("jobs.json")
+            .then(response => response.json())
+            .then(data => {
+                jobData = data;
+                populateFilters(data);
+                displayJobs(data);
+            })
+            .catch(error => console.error("Error loading jobs:", error));
+
+        // Populate filter options dynamically
+        function populateFilters(data) {
+            const locationFilter = document.getElementById("location-filter");
+            const uniqueLocations = [...new Set(data.map(job => job.Location))];
+
+            uniqueLocations.forEach(location => {
+                const option = document.createElement("option");
+                option.value = location;
+                option.textContent = location;
+                locationFilter.appendChild(option);
+            });
+        }
+
+        function displayJobs(jobs) {
+            const jobList = document.getElementById("job-list");
+            jobList.innerHTML = ""; // Clear current job list
+
+            jobs.forEach(job => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${job.Title}</td>
+                    <td>${job.Company}</td>
+                    <td>${job.Location}</td>
+                    <td>${job.Summary}</td>
+                    <td><a href="${job.URL}" target="_blank">View Job</a></td>
+                `;
+                jobList.appendChild(row);
+            });
+        }
+
+        function filterJobs() {
+            const company = document.getElementById("company-filter").value;
+            const location = document.getElementById("location-filter").value;
+
+            const filteredJobs = jobData.filter(job => {
+                return (company === "all" || job.Company === company) &&
+                       (location === "all" || job.Location === location);
+            });
+
+            displayJobs(filteredJobs);
+        }
+    </script>
+
+</body>
+</html>
